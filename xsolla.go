@@ -9,13 +9,20 @@ const (
 	EndpointProject  = "https://api.xsolla.com/merchant/v2/projects"
 
 	modeSandbox = "sandbox"
+
+	SubscriptionActive      = "active"
+	SubscriptionCanceled    = "canceled"
+	SubscriptionEnded       = "ended"
+	SubscriptionNonRenewing = "non_renewing"
 )
 
+// https://developers.xsolla.com/api/v2/getting-started/#api_errors_handling
 type RequestError struct {
-	Raw       string `json:"-"`
-	Code      int    `json:"http_status_code"`
-	Message   string `json:"message"`
-	RequestId string `json:"request_id"`
+	Raw             string `json:"-"`
+	Code            int    `json:"http_status_code"`
+	Message         string `json:"message"`
+	ExtendedMessage string `json:"extended_message"`
+	RequestId       string `json:"request_id"`
 }
 
 func (e *RequestError) Error() string {
@@ -39,17 +46,25 @@ type User struct {
 	Zip     string `json:"zip"`
 }
 
-// This is the subscription returned from webhooks
 type Subscription struct {
+	ChargeAmount   float64   `json:"charge_amount"`
+	Comment        string    `json:"comment"`
+	Currency       string    `json:"currency"`
 	DateCreate     time.Time `json:"date_create"`
 	DateEnd        time.Time `json:"date_end"`
 	DateNextCharge time.Time `json:"date_next_charge"`
-	Id             int       `json:"subscription_id"`
-	PlanId         string    `json:"plan_id"`
-	ProductId      string    `json:"product_id"`
+	Id             int       `json:"id"`
+	Plan           Plan      `json:"plan"`
+	Status         string    `json:"status"`
 	Tags           []string  `json:"tags"`
 	Trial          Trial     `json:"trial"`
 	User           User      `json:"user"`
+	// Product (not sure what this is).
+}
+
+type Plan struct {
+	ExternalId string `json:"external_id"`
+	Id         int    `json:"id"`
 }
 
 type Trial struct {
