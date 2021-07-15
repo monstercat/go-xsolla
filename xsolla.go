@@ -29,17 +29,6 @@ func (e *RequestError) Error() string {
 
 type M map[string]interface{}
 
-type Webhook struct {
-	CustomParams     M            `json:"custom_parameters"`
-	NotificationType string       `json:"notification_type"`
-	PaymentDetails   M            `json:"payment_details"`
-	Purchase         M            `json:"purchase"`
-	Refund           M            `json:"refund_details"`
-	Subscription     Subscription `json:"subscription"`
-	Transaction      M            `json:"transaction"`
-	User             User         `json:"user"`
-}
-
 type User struct {
 	Country string `json:"country"`
 	Email   string `json:"email"`
