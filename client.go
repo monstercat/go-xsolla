@@ -34,6 +34,8 @@ func (c *Client) doReq(req *http.Request, out interface{}) error {
 	}
 	isJSON := strings.Contains(res.Header.Get("Content-Type"), "json")
 	body, err := io.ReadAll(res.Body)
+	// All of Xsollas non-error responses should be within the 200 range.
+	// https://developers.xsolla.com/api/v2/getting-started/#api_errors_handling
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
 		err := RequestError{Raw: string(body)}
 		if isJSON {
@@ -118,15 +120,13 @@ func (c *Client) GetSubscriptionUserId(id string) (string, error) {
 	return resPayload.User.Id, err
 }
 
-func (c *Client) GetSubscriptionStatus(id int) (string, error) {
+func (c *Client) GetSubscription(id int) (*Subscription, error) {
 	req := c.newRequest(EndpointProject, http.MethodGet, fmt.Sprintf("subscriptions/%d", id), nil)
-	var resPayload struct {
-		Status string `json:"status"`
-	}
+	var resPayload Subscription
 	if err := c.doReq(req, &resPayload); err != nil {
-		return "", err
+		return nil, err
 	}
-	return resPayload.Status, nil
+	return &resPayload, nil
 }
 
 func (c *Client) GetUser(userId string) (*User, error) {
