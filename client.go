@@ -123,6 +123,7 @@ func (c *Client) GetSubscriptionUserId(id string) (string, error) {
 	return resPayload.User.Id, err
 }
 
+
 func (c *Client) GetSubscription(id int) (*Subscription, error) {
 	req := c.newRequest(EndpointProject, http.MethodGet, fmt.Sprintf("subscriptions/%d", id), nil)
 	var resPayload Subscription
@@ -162,6 +163,8 @@ func (c *Client) CreateToken(token *Token) (string, error) {
 	return resPayload.Token, err
 }
 
+
+// According to the documentation, this API operation will be removed in the near future.
 func (c *Client) CreateUserAttribute(attribute M) (int, error) {
 	req, err := c.newJSONRequest(EndpointProject, http.MethodPost, "user_attributes", attribute)
 	if err != nil {
