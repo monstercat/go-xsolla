@@ -162,6 +162,8 @@ func (c *Client) CreateToken(token *Token) (string, error) {
 	return resPayload.Token, err
 }
 
+// DEPRECATED: Method will not be supported in future versions.
+// https://developers.xsolla.com/store-api/v1/attributes/user-attributes/create-attribute
 func (c *Client) CreateUserAttribute(attribute M) (int, error) {
 	req, err := c.newJSONRequest(EndpointProject, http.MethodPost, "user_attributes", attribute)
 	if err != nil {
