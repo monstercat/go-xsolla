@@ -47,18 +47,18 @@ type User struct {
 }
 
 type Subscription struct {
-	ChargeAmount   float64   `json:"charge_amount"`
-	Comment        string    `json:"comment"`
-	Currency       string    `json:"currency"`
-	DateCreate     time.Time `json:"date_create"`
-	DateEnd        time.Time `json:"date_end"`
-	DateNextCharge time.Time `json:"date_next_charge"`
-	Id             int       `json:"id"`
-	Plan           Plan      `json:"plan"`
-	Status         string    `json:"status"`
-	Tags           []string  `json:"tags"`
-	Trial          Trial     `json:"trial"`
-	User           User      `json:"user"`
+	ChargeAmount   float64  `json:"charge_amount"`
+	Comment        string   `json:"comment"`
+	Currency       string   `json:"currency"`
+	DateCreate     Time     `json:"date_create"`
+	DateEnd        Time     `json:"date_end"`
+	DateNextCharge Time     `json:"date_next_charge"`
+	Id             int      `json:"id"`
+	Plan           Plan     `json:"plan"`
+	Status         string   `json:"status"`
+	Tags           []string `json:"tags"`
+	Trial          Trial    `json:"trial"`
+	User           User     `json:"user"`
 	// Product (not sure what this is).
 }
 
