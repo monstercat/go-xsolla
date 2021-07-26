@@ -32,6 +32,7 @@ func (c *Client) doReq(req *http.Request, out interface{}) error {
 	if err != nil {
 		return err
 	}
+	defer res.Body.Close()
 	isJSON := strings.Contains(res.Header.Get("Content-Type"), "json")
 	body, err := io.ReadAll(res.Body)
 	// All of Xsollas non-error responses should be within the 200 range.
@@ -49,18 +50,20 @@ func (c *Client) doReq(req *http.Request, out interface{}) error {
 }
 
 func (c *Client) newMerchantEndpoint(pathname string) *url.URL {
-	u, err := url.Parse(path.Join(fmt.Sprintf("%s/%d", EndpointMerchant, c.MerchantId), pathname))
+	u, err := url.Parse(EndpointMerchant)
 	if err != nil {
 		panic(err)
 	}
+	u.Path = path.Join(u.Path, fmt.Sprintf("%d", c.MerchantId), pathname)
 	return u
 }
 
 func (c *Client) newProjectEndpoint(pathname string) *url.URL {
-	u, err := url.Parse(path.Join(fmt.Sprintf("%s/%d", EndpointProject, c.ProjectId), pathname))
+	u, err := url.Parse(EndpointProject)
 	if err != nil {
 		panic(err)
 	}
+	u.Path = path.Join(u.Path, fmt.Sprintf("%d", c.ProjectId), pathname)
 	return u
 }
 

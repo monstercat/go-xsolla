@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"time"
 )
 
 var (
@@ -64,15 +63,15 @@ type Webhook struct {
 // https://developers.xsolla.com/api/v2/getting-started/#api_webhooks_canceled_subscription
 // https://developers.xsolla.com/api/v2/getting-started/#api_webhooks_updated_subscription
 type WebhookSubscription struct {
-	DateCreate     time.Time `json:"date_create"`
-	DateEnd        time.Time `json:"date_end"`
+	DateCreate Time `json:"date_create"`
+	DateEnd    Time `json:"date_end"`
 	// Only available in the updated & created notifications
-	DateNextCharge time.Time `json:"date_next_charge"`
-	SubscriptionId int       `json:"subscription_id"`
-	PlanId         string    `json:"plan_id"`
-	ProductId      string    `json:"product_id"`
-	Tags           []string  `json:"tags"`
-	Trial          Trial     `json:"trial"`
+	DateNextCharge Time     `json:"date_next_charge"`
+	SubscriptionId int      `json:"subscription_id"`
+	PlanId         string   `json:"plan_id"`
+	ProductId      string   `json:"product_id"`
+	Tags           []string `json:"tags"`
+	Trial          Trial    `json:"trial"`
 }
 
 type WebhookError struct {
