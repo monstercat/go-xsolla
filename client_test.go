@@ -7,10 +7,10 @@ import (
 	"time"
 )
 
-func newTestClient() *Client {
+func newTestClient() *StdClient {
 	merchantId, _ := strconv.Atoi(os.Getenv("MerchantId"))
 	projectId, _ := strconv.Atoi(os.Getenv("ProjectId"))
-	return &Client{
+	return &StdClient{
 		MerchantId:     merchantId,
 		MerchantSecret: os.Getenv("MerchantSecret"),
 		ProjectId:      projectId,
@@ -86,7 +86,7 @@ func TestClient_CreateToken(t *testing.T) {
 	var utm, attr M
 	client := newTestClient()
 	token := &Token{
-		User: NewUserData("user_2", "john.smith@mail.com", "", utm, attr),
+		User:     NewUserData("user_2", "john.smith@mail.com", "", utm, attr),
 		Settings: client.NewTokenSettings(),
 	}
 	str, err := client.CreateToken(token)
@@ -94,16 +94,5 @@ func TestClient_CreateToken(t *testing.T) {
 		t.Fatal(err)
 	} else if str == "" {
 		t.Fatal("Token response was empty")
-	}
-}
-
-func TestClient_CreateUserAttribute(t *testing.T) {
-	testClient := newTestClient()
-	testAttribute := newTestAttribute()
-	id, err := testClient.CreateUserAttribute(testAttribute)
-	if err != nil {
-		t.Fatal(err)
-	} else if id == 0 {
-		t.Fatal("User attribute failed to be created and responded with 0")
 	}
 }

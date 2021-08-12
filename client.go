@@ -13,7 +13,16 @@ import (
 	"time"
 )
 
-type Client struct {
+type Client interface {
+	NewTokenSettings() TokenSettings
+	GetSubscriptionUserId(id string) (string, error)
+	GetSubscription(id int) (*Subscription, error)
+	GetUser(userId string) (*User, error)
+	GetTransaction(id string) (*Transaction, error)
+	CreateToken(token *Token) (string, error)
+}
+
+type StdClient struct {
 	MerchantId     int
 	MerchantSecret string
 	ProjectId      int
@@ -22,7 +31,7 @@ type Client struct {
 	Timeout        time.Duration
 }
 
-func (c *Client) doReq(req *http.Request, out interface{}) error {
+func (c *StdClient) doReq(req *http.Request, out interface{}) error {
 	req.SetBasicAuth(strconv.Itoa(c.MerchantId), c.MerchantSecret)
 	req.Header.Set("Accept", "application/json; charset=UTF-8")
 	client := http.Client{
@@ -49,7 +58,7 @@ func (c *Client) doReq(req *http.Request, out interface{}) error {
 	return nil
 }
 
-func (c *Client) newMerchantEndpoint(pathname string) *url.URL {
+func (c *StdClient) newMerchantEndpoint(pathname string) *url.URL {
 	u, err := url.Parse(EndpointMerchant)
 	if err != nil {
 		panic(err)
@@ -58,7 +67,7 @@ func (c *Client) newMerchantEndpoint(pathname string) *url.URL {
 	return u
 }
 
-func (c *Client) newProjectEndpoint(pathname string) *url.URL {
+func (c *StdClient) newProjectEndpoint(pathname string) *url.URL {
 	u, err := url.Parse(EndpointProject)
 	if err != nil {
 		panic(err)
@@ -73,7 +82,7 @@ func (c *Client) newProjectEndpoint(pathname string) *url.URL {
 //
 // Secondly we are using panics because all request creations shouldn't fail during testing. If it panics there is
 // something wrong with the codebase.
-func (c *Client) newRequest(endpoint, method, pathname string, body io.Reader) *http.Request {
+func (c *StdClient) newRequest(endpoint, method, pathname string, body io.Reader) *http.Request {
 	var u *url.URL
 	switch endpoint {
 	case EndpointMerchant:
@@ -90,7 +99,7 @@ func (c *Client) newRequest(endpoint, method, pathname string, body io.Reader) *
 	return req
 }
 
-func (c *Client) newJSONRequest(endpoint, method, pathname string, body interface{}) (*http.Request, error) {
+func (c *StdClient) newJSONRequest(endpoint, method, pathname string, body interface{}) (*http.Request, error) {
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
@@ -100,7 +109,7 @@ func (c *Client) newJSONRequest(endpoint, method, pathname string, body interfac
 	return req, nil
 }
 
-func (c *Client) NewTokenSettings() TokenSettings {
+func (c *StdClient) NewTokenSettings() TokenSettings {
 	var mode string
 	if c.Sandbox {
 		mode = modeSandbox
@@ -112,7 +121,7 @@ func (c *Client) NewTokenSettings() TokenSettings {
 	}
 }
 
-func (c *Client) GetSubscriptionUserId(id string) (string, error) {
+func (c *StdClient) GetSubscriptionUserId(id string) (string, error) {
 	req := c.newRequest(EndpointMerchant, http.MethodGet, fmt.Sprintf("subscriptions/%s", id), nil)
 	var resPayload struct {
 		User struct {
@@ -123,7 +132,7 @@ func (c *Client) GetSubscriptionUserId(id string) (string, error) {
 	return resPayload.User.Id, err
 }
 
-func (c *Client) GetSubscription(id int) (*Subscription, error) {
+func (c *StdClient) GetSubscription(id int) (*Subscription, error) {
 	req := c.newRequest(EndpointProject, http.MethodGet, fmt.Sprintf("subscriptions/%d", id), nil)
 	var resPayload Subscription
 	if err := c.doReq(req, &resPayload); err != nil {
@@ -132,7 +141,7 @@ func (c *Client) GetSubscription(id int) (*Subscription, error) {
 	return &resPayload, nil
 }
 
-func (c *Client) GetUser(userId string) (*User, error) {
+func (c *StdClient) GetUser(userId string) (*User, error) {
 	req := c.newRequest(EndpointProject, http.MethodGet, fmt.Sprintf("users/%s", userId), nil)
 	var resPayload User
 	if err := c.doReq(req, &resPayload); err != nil {
@@ -141,7 +150,7 @@ func (c *Client) GetUser(userId string) (*User, error) {
 	return &resPayload, nil
 }
 
-func (c *Client) GetTransaction(id string) (*Transaction, error) {
+func (c *StdClient) GetTransaction(id string) (*Transaction, error) {
 	req := c.newRequest(EndpointMerchant, http.MethodGet, fmt.Sprintf("reports/transactions/%s/details", id), nil)
 	var resPayload Transaction
 	if err := c.doReq(req, &resPayload); err != nil {
@@ -150,7 +159,7 @@ func (c *Client) GetTransaction(id string) (*Transaction, error) {
 	return &resPayload, nil
 }
 
-func (c *Client) CreateToken(token *Token) (string, error) {
+func (c *StdClient) CreateToken(token *Token) (string, error) {
 	req, err := c.newJSONRequest(EndpointMerchant, http.MethodPost, "token", token)
 	if err != nil {
 		return "", err
@@ -160,18 +169,4 @@ func (c *Client) CreateToken(token *Token) (string, error) {
 	}
 	err = c.doReq(req, &resPayload)
 	return resPayload.Token, err
-}
-
-// DEPRECATED: Method will not be supported in future versions.
-// https://developers.xsolla.com/store-api/v1/attributes/user-attributes/create-attribute
-func (c *Client) CreateUserAttribute(attribute M) (int, error) {
-	req, err := c.newJSONRequest(EndpointProject, http.MethodPost, "user_attributes", attribute)
-	if err != nil {
-		return 0, err
-	}
-	var resPayload struct {
-		Id int `json:"id"`
-	}
-	err = c.doReq(req, &resPayload)
-	return resPayload.Id, err
 }
