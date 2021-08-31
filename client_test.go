@@ -7,10 +7,10 @@ import (
 	"time"
 )
 
-func newTestClient() *StdClient {
+func newTestClient() *Client {
 	merchantId, _ := strconv.Atoi(os.Getenv("MerchantId"))
 	projectId, _ := strconv.Atoi(os.Getenv("ProjectId"))
-	return &StdClient{
+	return &Client{
 		MerchantId:     merchantId,
 		MerchantSecret: os.Getenv("MerchantSecret"),
 		ProjectId:      projectId,
