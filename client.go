@@ -22,6 +22,10 @@ type Client struct {
 	Timeout        time.Duration
 }
 
+type XsollaUpdatePayload struct {
+	status string
+}
+
 func (c *Client) doReq(req *http.Request, out interface{}) error {
 	req.SetBasicAuth(strconv.Itoa(c.MerchantId), c.MerchantSecret)
 	req.Header.Set("Accept", "application/json; charset=UTF-8")
@@ -160,4 +164,16 @@ func (c *Client) CreateToken(token *Token) (string, error) {
 	}
 	err = c.doReq(req, &resPayload)
 	return resPayload.Token, err
+}
+
+func (c *Client) UpdateSubscription(userID string, subscriptionID int, status *XsollaUpdatePayload) (*Subscription, error) {
+	req, err := c.newJSONRequest(EndpointProject, http.MethodPut, fmt.Sprintf("users/%s/subscriptions/%d", userID, subscriptionID), status)
+	if err != nil {
+		return nil, err
+	}
+	var resPayload Subscription
+	if err = c.doReq(req, &resPayload); err != nil {
+		return nil, err
+	}
+	return &resPayload, nil
 }
