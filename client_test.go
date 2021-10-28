@@ -82,6 +82,23 @@ func TestClient_GetTransaction(t *testing.T) {
 	}
 }
 
+func TestClient_UpdateSubscription(t *testing.T) {
+	subscriptionID, _ := strconv.Atoi(os.Getenv("SubscriptionId"))
+	userID := os.Getenv("TestUserId")
+	testClient := newTestClient()
+	res, err := testClient.UpdateSubscription(userID, subscriptionID, StatusCanceled)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res == nil {
+		t.Fatal("Subscription is nil, update subscription failed")
+	}
+	if res.Status != "canceled" {
+		t.Fatal("Update subscription did not go through, please try again")
+	}
+
+}
+
 func TestClient_CreateToken(t *testing.T) {
 	var utm, attr M
 	client := newTestClient()
